@@ -28,7 +28,7 @@ function l.anyClientSupports(method)
     local supported = false
 
     vim.lsp.for_each_buffer_client(bufnr, function(client)
-      if client.supports_method(method) then
+      if client:supports_method(method) then
         supported = true
       end
     end)
