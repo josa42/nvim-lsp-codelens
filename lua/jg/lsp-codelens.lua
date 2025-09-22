@@ -24,11 +24,11 @@ end
 function l.anyClientSupports(method)
   local bufnr = vim.api.nvim_get_current_buf()
 
-  if vim.fn.has('nvim-0.11') == 0 then
+  if vim.fn.has('nvim-0.10') == 0 then
     local supported = false
 
     vim.lsp.for_each_buffer_client(bufnr, function(client)
-      if client:supports_method(method) then
+      if client.supports_method(method) then
         supported = true
       end
     end)
@@ -37,7 +37,7 @@ function l.anyClientSupports(method)
   end
 
   for _, client in ipairs(vim.lsp.get_clients({ bufnr = bufnr })) do
-    if client.supports_method(method) then
+    if client:supports_method(method) then
       return true
     end
   end
@@ -46,3 +46,4 @@ function l.anyClientSupports(method)
 end
 
 return M
+
