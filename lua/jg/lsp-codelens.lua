@@ -1,5 +1,4 @@
 local M = {}
-local l = {}
 
 function M.setup()
   vim.cmd([[
@@ -7,43 +6,15 @@ function M.setup()
     hi! link LspCodeLensSeparator Comment
   ]])
 
-  vim.cmd([[
-    augroup lsp-codelens
-      au!
-      au! BufEnter,CursorHold,InsertLeave <buffer> lua require('jg.lsp-codelens').on_refresh()
-    augroup END
-  ]])
-end
-
-function M.on_refresh()
-  if l.anyClientSupports('textDocument/codeLens') then
-    vim.lsp.codelens.refresh()
-  end
-end
-
-function l.anyClientSupports(method)
-  local bufnr = vim.api.nvim_get_current_buf()
-
-  if vim.fn.has('nvim-0.10') == 0 then
-    local supported = false
-
-    vim.lsp.for_each_buffer_client(bufnr, function(client)
-      if client.supports_method(method) then
-        supported = true
+  vim.api.nvim_create_autocmd('LspAttach', {
+    group = vim.api.nvim_create_augroup('lsp-codelens', { clear = true }),
+    callback = function(args)
+      local client = vim.lsp.get_client_by_id(args.data.client_id)
+      if client and client:supports_method('textDocument/codeLens') then
+        vim.lsp.codelens.enable(true, { bufnr = args.buf })
       end
-    end)
-
-    return supported
-  end
-
-  for _, client in ipairs(vim.lsp.get_clients({ bufnr = bufnr })) do
-    if client:supports_method(method) then
-      return true
-    end
-  end
-
-  return false
+    end,
+  })
 end
 
 return M
-
