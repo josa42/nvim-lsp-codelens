@@ -8,22 +8,14 @@ end
 function M.setup()
   set_highlights()
 
-  local group = vim.api.nvim_create_augroup('lsp-codelens', { clear = true })
-
   vim.api.nvim_create_autocmd('ColorScheme', {
-    group = group,
+    group = vim.api.nvim_create_augroup('lsp-codelens', { clear = true }),
     callback = set_highlights,
   })
 
-  vim.api.nvim_create_autocmd('LspAttach', {
-    group = group,
-    callback = function(args)
-      local client = vim.lsp.get_client_by_id(args.data.client_id)
-      if client and client:supports_method('textDocument/codeLens') then
-        vim.lsp.codelens.enable(true, { bufnr = args.buf })
-      end
-    end,
-  })
+  -- Enables code lens for all clients that support it, including clients
+  -- attached before setup() was called.
+  vim.lsp.codelens.enable(true)
 end
 
 return M
